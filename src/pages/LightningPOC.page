@@ -1,0 +1,216 @@
+<apex:page standardstylesheets="true" showheader="false" standardController="Account" extensions="LightningPOCClass" applyBodyTag="false" docType="html-5.0">
+    <html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" />
+    <apex:includeScript value="{!URLFOR($Resource.jQueryPackageReport, 'package/media/js/jquery-1.11.1.min.js')}"/>
+    <apex:stylesheet value="/resource/SLDS/assets/styles/salesforce-lightning-design-system-vf.min.css"/>
+    <style>
+        .lefthidden { display:none; }
+        .righthidden { display:none; }
+        #namehelp {display:none;}
+    </style>
+    <apex:form >
+        
+        <apex:actionFunction action="{!selectclick}" name="testFunction" reRender="abcd">
+            <apex:param assignto="{!selectedItem}" name="param1" value="">
+            </apex:param>
+        </apex:actionFunction>
+        <apex:actionFunction action="{!unselectclick}" name="testUnFunction" reRender="abcd">
+            <apex:param assignto="{!unselectedItem}" name="param2" value="">
+            </apex:param>
+        </apex:actionFunction>
+        <div class="myslds">
+            <div class="slds-form--stack">
+                <apex:commandButton value="Generate Report" rerender="opanel, errormsg" id="multiButton" 
+                                    styleClass="slds-button slds-button--neutral"/>
+                
+                <div class="slds-form-element">
+                    <label class="slds-form-element__label">Countries</label>
+                    <div class="slds-form-element__control">
+                        <div class="slds-select_container">
+                            <apex:selectList size="1" value="{!selectedCountry}" styleClass="slds-select">
+                                <apex:selectOptions value="{!countrieLst}"/>
+                            </apex:selectList>
+                        </div>
+                    </div>
+                </div>
+                
+                
+                <div class="slds-grid slds-grid--pull-padded">
+                
+                <div class="slds-form-element">
+                    <label class="slds-form-element__label">Account Multipicklist</label>
+                    <div class="slds-form-element__control">
+                            <apex:inputField value="{!account.MultiPicklist__c}"  styleClass="slds-select slds-input slds-input--small"/>
+                    </div>
+                </div>                
+                    
+                    <div class="slds-col--padded">
+                        <div class="slds-form-element"> 
+                            <label class="slds-form-element__label">
+                                <abbr class="slds-required">*</abbr>Account Name</label>
+                            <div class="slds-form-element__icon">
+                                <div id="namehelp" class="slds-popover slds-popover--tooltip slds-nubbin--bottom-left" role="tooltip" aria-live="polite" style="position:absolute;top:-40px;left:11px;margin-left:-1.5rem;width:20rem;">
+                                    <div class="slds-popover__body slds-text-longform">
+                                        <p>Account Name Help Text</p>
+                                    </div>
+                                </div>
+                                <div id="namehelptext">
+                                    <c:svg styleClass="slds-button__icon" path="/assets/icons/utility-sprite/svg/symbols.svg#info"/>
+                                    <span class="slds-assistive-text">Help</span>
+                                </div>
+                            </div>
+                            <div class="slds-form-element__control">
+                                <apex:inputField value="{!account.Name}"  styleClass="slds-input slds-input--small"/>
+                            </div>
+                        </div>                
+                    </div>
+                    <div class="slds-col--padded">
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label">Account Type</label>
+                            <div class="slds-form-element__control">
+                                <div class="slds-select_container">
+                                    <apex:inputField value="{!account.Type}"  styleClass="slds-select slds-input slds-input--small"/>
+                                </div>
+                            </div>
+                        </div>                
+                    </div>
+                    <div class="slds-col--padded">
+                        <apex:outputPanel layout="block" styleClass="slds-lookup" id="divLookup" html-data-select="single" html-data-scope="single" html-data-typeahead="true">
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label">Parent Account</label>
+                                <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon--right">
+                                    <apex:inputField id="parentid" value="{!account.ParentId}" styleClass="slds-input slds-input--small"/>                                
+                                </div>
+                            </div>
+                            <script>
+                            var lkInput = document.getElementById("{!$Component.parentId}");
+                            lkInput.style.visibility = "";
+                            var lkSpan = lkInput.parentElement;
+                            var lkLink = lkSpan.querySelector("a");
+                            lkLink.style.visibility = "";
+                            lkLink.className = "";
+                            lkLink.innerHTML = "<svg aria-hidden=\"true\" class=\"slds-input__icon\"><use xlink:href=\"" + "{!URLFOR($Resource.SLDS, 'assets/icons/utility-sprite/svg/symbols.svg#search')}" + "\"></use></svg>";
+                            </script>
+                        </apex:outputPanel>
+                    </div>
+                </div>
+                
+                <div class="slds-grid slds-grid--pull-padded">
+                    <div class="slds-col--padded">
+                        <div class="slds-form-element">
+                            <div class="slds-form-element__control">
+                                <label class="slds-checkbox">
+                                    <apex:inputField value="{!account.Active_Account__c}"/>
+                                    <span class="slds-checkbox--faux"></span>
+                                    <span class="slds-form-element__label">Account Active</span>
+                                </label>
+                            </div>
+                        </div>             
+                    </div>
+                    <div class="slds-col--padded">
+                        <apex:outputPanel layout="block" styleClass="slds-form-element" id="divDatetime" >
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label">Account SLAExpirationDate</label>
+                                <apex:inputField id="txtDatetime" value="{!account.SLAExpirationDate__c}"  styleClass="slds-input slds-input--small"/>                                
+                            </div>
+                            <script type="text/javascript">
+                            var datePickerLexWrapper;
+                            if (datePickerLexWrapper == null) {                           
+                                datePickerLexWrapper = document.createElement('div');
+                                datePickerLexWrapper.className = 'slds';
+                                datePickerLexWrapper.id = 'datePicker_slds_wrapper';
+                                document.addEventListener("DOMContentLoaded", function(event) { 
+                                    var dtp = document.getElementById("datePicker");                            
+                                    if (dtp != null) {
+                                        var dtpParent = dtp.parentElement;
+                                        dtpParent.appendChild(datePickerLexWrapper);
+                                        datePickerLexWrapper.appendChild(dtp);
+                                    }
+                                });
+                            }
+                            </script>
+                        </apex:outputPanel>
+                    </div>
+                </div>
+                
+                <apex:outputPanel id="abcd">
+                    <script type="text/javascript">
+                    $(document).ready(function(){
+                        $(".licustom").mouseover(function(){
+                            $(".lefthidden").show();
+                        });
+                        
+                        $(".licustom").mouseout(function(){
+                            $(".lefthidden").hide();
+                        });
+                        
+                        $(".lirightcustom").mouseover(function(){
+                            $(".righthidden").show();
+                        });
+                        
+                        $(".lirightcustom").mouseout(function(){
+                            $(".righthidden").hide();
+                        });
+                        
+                        $("#namehelptext").mouseover(function(){
+                            $("#namehelp").show();
+                        });
+                        
+                        $("#namehelptext").mouseout(function(){
+                            $("#namehelp").hide();
+                        });
+                    }); 
+                    </script>
+                    <apex:outputPanel >
+                        <div class="slds-picklist--draggable slds-grid">
+                            <div class="slds-form-element">
+                                <span class="slds-form-element__label" aria-label="select-1">Available City</span>
+                                <div class="slds-picklist slds-picklist--multi">
+                                    <ul class="slds-picklist__options slds-picklist__options--multi shown">
+                                        <apex:repeat value="{!unselectedvalues}" var="leftitem">
+                                            <li onclick="select(this)" draggable="true" class="slds-picklist__item licustom" aria-selected="false" tabindex="0" role="option">
+                                                <span class="slds-truncate">
+                                                    <span><apex:outputLabel value="{!leftitem}"/>
+                                                    </span>                                                
+                                                </span> 
+                                            </li>                                                                            
+                                        </apex:repeat>                                    
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="slds-grid slds-grid--vertical">                            
+                                <button class="slds-button slds-button--icon-container">                                
+                                    <c:svg styleClass="slds-button__icon lefthidden" path="/assets/icons/utility-sprite/svg/symbols.svg#right"/>             
+                                    <c:svg styleClass="slds-button__icon righthidden" path="/assets/icons/utility-sprite/svg/symbols.svg#left"/>                                
+                                </button>
+                            </div>
+                            <div class="slds-form-element">
+                                <span class="slds-form-element__label" aria-label="select-1">Selected City</span>
+                                <div class="slds-picklist slds-picklist--multi">
+                                    <ul class="slds-picklist__options slds-picklist__options--multi shown">
+                                        <apex:repeat value="{!Selectedvalues}" var="leftitem">
+                                            <li onclick="unslect(this)" draggable="true" id="po-8-0" class="slds-picklist__item lirightcustom" aria-selected="false" tabindex="0" role="option">
+                                                <span class="slds-truncate">
+                                                    <span><apex:outputLabel value="{!leftitem}"></apex:outputLabel></span>
+                                                </span>
+                                            </li>
+                                        </apex:repeat>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </apex:outputPanel>
+                </apex:outputPanel>   
+            </div>
+        </div>
+        
+        
+        <script>
+        function select(listitem){
+            testFunction(listitem.innerText);
+        }
+        function unslect(listitem){
+            testUnFunction(listitem.innerText);
+        }
+        </script>        
+    </apex:form>
+</apex:page>
